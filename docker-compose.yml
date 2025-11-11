@@ -1,25 +1,19 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
     container_name: postgres_db
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pss
-      POSTGRES_DB: prueba
+      POSTGRES_USER: autodoc_user
+      POSTGRES_PASSWORD: autodoc
+      POSTGRES_DB: autodoc_db
     ports:
       - "5432:5432"
     volumes:
+      - ./app/db/postgres:/docker-entrypoint-initdb.d
       - pgdata:/var/lib/postgresql/data
-      - ./app/db/postgres:/docker-entrypoint-initdb.d   # <-- Ejecuta todos los .sql al iniciar
 
-# pgAdmin (gestor visual de PostgreSQL). OPCIONAL
-# Esto levantará pgAdmin en http://localhost:8080
-# Usuario: admin@admin.com
-# Contraseña: admin123
-
+# Opcional: pgAdmin service para administrar la base de datos PostgreSQL
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin

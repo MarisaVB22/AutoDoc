@@ -20,7 +20,7 @@ Este repositorio contiene una aplicación Flask mínima conectada a PostgreSQL u
 ---
 
 ## Estructura del proyecto:
-
+```powershell
 app/
 │
 ├── __init__.py
@@ -35,6 +35,7 @@ app/
 main.py
 docker-compose.yml
 requirements.txt
+```
 
 ---
 
@@ -45,6 +46,7 @@ requirements.txt
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+
 pip install -r requirements.txt
 ```
 
@@ -64,17 +66,18 @@ Esto levantará:
 
 ### 3. Acceder a pgAmin (opcional)
 
-3.1. Abrir navegador: http://localhost:8080
-    Usuario: admin@admin.com
-    Contraseña: admin123
-3.2. Agregar un servidor:
-    Name: PostgresLocal
-    Host name/address: postgres
-    Port: 5432
-    Username: user
-    Password: pss
-3.3. Guardar y conectar
-3.4. Explorar la base de datos autodoc_db → Schemas → documentos → Tables → documentos.
+- Abrir navegador: http://localhost:8080
+    - Usuario: admin@admin.com
+    - Contraseña: admin123
+- Agregar un servidor:
+    - Name: PostgresLocal
+    - Host name/address: postgres
+    - Port: 5432
+    - Base de datos de mantenimiento: autodoc_db
+    - Username: autodoc_user
+    - Password: autodoc
+- Guardar y conectar
+- Explorar la base de datos autodoc_db → Schemas → documentos → Tables → documentos.
 
 ### 4. Ejecutar la aplicación Flask localmente:
 
@@ -83,13 +86,11 @@ python main.py
 ```
 
 - La aplicación escuchará por defecto en http://127.0.0.1:5000/
-- Puedes probar la ruta /crear_tabla en Postman:
+- Puedes probar la ruta /saludo en Postman:
 
 ```powershell
-GET http://127.0.0.1:5000/crear_tabla
+GET http://127.0.0.1:5000/saludo
 ```
-
-Respuesta esperada: "Tabla creada correctamente"
 
 #### 5. Detener los contenedores
 

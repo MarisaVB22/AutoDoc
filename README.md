@@ -4,6 +4,7 @@ Este repositorio ahora contiene una aplicación Flask mínima.
 
 Estructura:
 
+```powershell
 app/
 │
 ├── __init__.py
@@ -12,6 +13,7 @@ app/
 └── utils/
     └── funciones.py
 main.py
+```
 
 Instrucciones rápidas (Windows PowerShell):
 

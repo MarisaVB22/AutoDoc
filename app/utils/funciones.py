@@ -127,3 +127,99 @@ def eliminar_proyecto(proyecto_id):
 """-----------------------------------------------------------------------
                        DOCUMENTOS
 -----------------------------------------------------------------------"""
+
+
+# Obtener todos los documentos de un proyecto
+def obtener_documentos(proyecto_id):
+    pool = get_db_pool()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(db.GET_DOCUMENTS_BY_PROJECT, (proyecto_id,))
+        documentos = cursor.fetchall()
+    finally:
+        cursor.close()
+        pool.release_connection(conn)
+
+    return documentos
+
+
+# Crear un nuevo documento
+def crear_documento(proyecto_id, nombre, descripcion, url):
+    pool = get_db_pool()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            db.CREATE_DOCUMENT,
+            (proyecto_id, nombre, descripcion, url)
+        )
+        documento_id = cursor.fetchone()["documento_id"]
+        conn.commit()
+    finally:
+        cursor.close()
+        pool.release_connection(conn)
+
+    return documento_id
+
+
+# Obtener un documento por su ID
+def obtener_documento_por_id(documento_id):
+    pool = get_db_pool()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(db.GET_DOCUMENT_BY_ID, (documento_id,))
+        documento = cursor.fetchone()
+    finally:
+        cursor.close()
+        pool.release_connection(conn)
+
+    return documento
+
+
+# Modificar documento
+def modificar_documento(documento_id, nombre, descripcion, url):
+    pool = get_db_pool()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            db.UPDATE_DOCUMENT,
+            (nombre, descripcion, url, documento_id)
+        )
+        conn.commit()
+
+        # Si rowcount == 0 → NO existía
+        return cursor.rowcount > 0
+
+    finally:
+        cursor.close()
+        pool.release_connection(conn)
+
+
+# Eliminar un documento
+def eliminar_documento(documento_id):
+    pool = get_db_pool()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(db.DELETE_DOCUMENT, (documento_id,))
+        if cursor.rowcount == 0:
+            return False
+
+        conn.commit()
+        return True
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        cursor.close()
+        pool.release_connection(conn)

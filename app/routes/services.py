@@ -113,3 +113,85 @@ def eliminar_proyecto_endpoint(id):
 """-----------------------------------------------------------------------
                        DOCUMENTOS
 -----------------------------------------------------------------------"""
+
+# -------------------- LISTAR DOCUMENTOS DE UN PROYECTO -------------------- #
+@app.route("/proyectos/<int:idProyecto>/documentos", methods=["GET"])
+def obtener_documentos_endpoint(idProyecto):
+    documentos = funcs.obtener_documentos(idProyecto)
+    return jsonify(documentos)
+
+
+# -------------------- SUBIR DOCUMENTO (REGISTRO EN BBDD) -------------------- #
+@app.route("/proyectos/<int:idProyecto>/documentos", methods=["POST"])
+def crear_documento_endpoint(idProyecto):
+    data = request.get_json()
+
+    # Validar campos obligatorios
+    nombre = data.get("nombre")
+    descripcion = data.get("descripcion")
+    url = data.get("url")  # URL de OneDrive, Sharepoint u otro
+
+    if not nombre or not descripcion or not url:
+        return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
+
+    documento_id = funcs.crear_documento(idProyecto, nombre, descripcion, url)
+
+    return jsonify({
+        "mensaje": "Documento creado correctamente",
+        "documento_id": documento_id
+    }), 200
+
+
+# -------------------- OBTENER DOCUMENTO POR ID -------------------- #
+@app.route("/proyectos/<int:idProyecto>/documentos/<int:idDocumento>", methods=["GET"])
+def obtener_documento_por_id_endpoint(idProyecto, idDocumento):
+    documento_raw = funcs.obtener_documento_por_id(idDocumento)
+
+    if not documento_raw:
+        return jsonify({"mensaje": "No se encontró el documento con ese ID"}), 404
+
+    # Transformar al formato esperado
+    documento = {
+        "idDocumento": documento_raw["documento_id"],
+        "idProyecto": documento_raw["proyecto_id"],
+        "nombre": documento_raw["nombre"],
+        "descripcion": documento_raw["descripcion"],
+        "url": documento_raw["url"],
+        "fecha": documento_raw["fecha"]
+    }
+
+    return jsonify(documento)
+
+
+# -------------------- MODIFICAR DOCUMENTO -------------------- #
+@app.route("/proyectos/<int:idProyecto>/documentos/<int:idDocumento>", methods=["PUT"])
+def modificar_documento_endpoint(idProyecto, idDocumento):
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"mensaje": "No se enviaron datos para actualizar"}), 400
+
+    nombre = data.get("nombre")
+    descripcion = data.get("descripcion")
+    url = data.get("url")
+
+    if not all([nombre, descripcion, url]):
+        return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
+
+    actualizado = funcs.modificar_documento(idDocumento, nombre, descripcion, url)
+
+    if not actualizado:
+        return jsonify({"mensaje": "No se encontró el documento con ese ID"}), 404
+
+    return jsonify({"mensaje": "Documento actualizado correctamente"})
+
+
+# -------------------- ELIMINAR DOCUMENTO -------------------- #
+@app.route("/proyectos/<int:idProyecto>/documentos/<int:idDocumento>", methods=["DELETE"])
+def eliminar_documento_endpoint(idProyecto, idDocumento):
+    eliminado = funcs.eliminar_documento(idDocumento)
+
+    if not eliminado:
+        return jsonify({"mensaje": "No se encontró el documento con ese ID"}), 404
+
+    return jsonify({"mensaje": "Documento eliminado correctamente"})

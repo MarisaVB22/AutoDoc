@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: autodoc_user
+      POSTGRES_PASSWORD: autodoc
+      POSTGRES_DB: autodoc_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./app/db/postgres:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+
+# Opcional: pgAdmin service para administrar la base de datos PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+
+volumes:
+  pgdata:
+  pgadmindata:

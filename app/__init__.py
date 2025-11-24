@@ -7,5 +7,5 @@ from .config.config import CORS_ORIGINS
 app = Flask(__name__)
 CORS(app, resources={"/*": {"origins": CORS_ORIGINS}})  # habilita CORS
 
-# Registrar rutas - TODO: Ver si se puede automatizar
+# Registrar rutas
 from .routes import services

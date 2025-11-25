@@ -2,7 +2,6 @@ APP_PORT = 5000
 CORS_ORIGINS = ["http://localhost:5173"]  # frontend en desarrollo
 
 # Configuración de la base de datos
-# Configuración de la base de datos
 DB_CONFIG = {
     "DB_HOST": "127.0.0.1",
     "DB_NAME": "autodoc_db",

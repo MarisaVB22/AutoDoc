@@ -37,6 +37,7 @@ main.py
 docker-compose.yml    # Contenedores para PostgreSQL
 requirements.txt      # Instalaciones necesarias
 ```
+```
 
 ---
 
@@ -83,31 +84,9 @@ Esto levantará:
 python main.py
 ```
 
-- La aplicación escuchará por defecto en http://127.0.0.1:5000/
-- Puedes probar la ruta /proyectos en Postman:
+La aplicación escuchará por defecto en http://127.0.0.1:5000/ y expondrá una ruta `/` que devuelve un JSON simple.
 
-```powershell
-GET http://127.0.0.1:5000/proyectos
-```
-
-#### 5. Detener los contenedores
-
-```powershell
-docker-compose down
-```
-
-- Esto detiene y elimina los contenedores pero mantiene los volúmenes de datos.
-- Para eliminar también los volúmenes:
-
-
-```powershell
-docker-compose down -v
-```
-
-### 6. Notas
-- Variables de conexión a PostgreSQL (DB_HOST, DB_USER, DB_PASS, DB_NAME) se encuentran en config.py.
-- No subas datos sensibles al repositorio.
-- Gracias al script data.sql dentro de app/db/postgres, cualquier persona que clone el repositorio y haga docker-compose up -d tendrá la base de datos lista automáticamente, sin necesidad de ejecutar endpoints o scripts adicionales.
+---
 
 # DOCUMENTACIÓN TÉCNICA
 

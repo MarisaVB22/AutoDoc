@@ -82,12 +82,15 @@ def obtener_proyecto_por_id(proyecto_id):
     return proyecto
 
 # Inserta un nuevo proyecto en la base de datos y devuelve el ID
-def crear_proyecto(nombre, descripcion, proyecto_url):
+def crear_proyecto(nombre, descripcion, proyecto_url, id_sharepoint):
     pool = get_db_pool()
     conn = pool.get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute(db.CREATE_PROJECT, (nombre, descripcion, proyecto_url))
+        cursor.execute(
+            db.CREATE_PROJECT, 
+            (nombre, descripcion, proyecto_url, id_sharepoint)
+        )
         proyecto_id = cursor.fetchone()["proyecto_id"]
         conn.commit()
     finally:
@@ -96,9 +99,12 @@ def crear_proyecto(nombre, descripcion, proyecto_url):
 
     return proyecto_id
 
-# Crea una carpeta en Sharepoint para el proyecto
+# Crear carpeta en Sharepoint para el proyecto
 def crear_carpeta_sharepoint(nombre_carpeta):
-    token = get_access_token()
+    # Token de acceso a la API de Microsoft Graph
+    token = get_access_token() 
+
+    # Endpoint para crear carpeta en la raíz del SHAREPOINT
     url = f"https://graph.microsoft.com/v1.0/sites/{SITE_ID}/drives/{DRIVE_ID}/root/children"
     headers = {
         "Authorization": f"Bearer {token}",
@@ -114,8 +120,8 @@ def crear_carpeta_sharepoint(nombre_carpeta):
     response.raise_for_status() # Lanza error si falla
     folder_info = response.json() # JSON de Microsoft Graph
 
-    # Devuelve la URL de la carpeta creada
-    return folder_info.get("webUrl")
+    # Devuelve la URL de la carpeta creada y su ID
+    return folder_info.get("webUrl"), folder_info.get("id")
 
 
 
@@ -191,6 +197,42 @@ def crear_documento(proyecto_id, nombre, descripcion, url):
 
     return documento_id
 
+# Devuelve la URL de la carpeta de Sharepoint asociada a un proyecto
+def obtener_info_proyecto(idProyecto):
+    pool = get_db_pool()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(db.GET_PROJECT_URL_BY_ID, (idProyecto,))
+        result = cursor.fetchone()
+        
+        if not result or not result.get("proyecto_url"):
+            raise Exception(f"No se encontró URL de SharePoint para el proyecto {idProyecto}")
+        
+        return result["proyecto_url"], result["id_sharepoint"]
+    
+    finally:
+        cursor.close()
+        pool.release_connection(conn)
+
+# Subir archivo a Sharepoint
+def subir_archivo_sharepoint(nombre_archivo, contenido_bytes, carpeta_url):
+    token = get_access_token() 
+
+    # Endpoint para subir archivo en modo simple (menos de 4MB)
+    url = f"https://graph.microsoft.com/v1.0/drives/{DRIVE_ID}/items/{carpeta_url}:/{nombre_archivo}:/content"
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/octet-stream"
+    }
+
+    response = requests.put(url, headers=headers, data=contenido_bytes)
+    response.raise_for_status()
+
+    return response.json().get("webUrl")
+
 
 # Obtener un documento por su ID
 def obtener_documento_por_id(documento_id):
@@ -250,23 +292,3 @@ def eliminar_documento(documento_id):
     finally:
         cursor.close()
         pool.release_connection(conn)
-
-
-
-
-# PRUEBA
-
-SITE_ID = "autodocapp.sharepoint.com,0f312f13-1068-456c-9698-1e51cc3b7ab6,1a49da2b-2feb-46a1-b6b6-8fef07fe3178"
-token = get_access_token()
-headers = {
-    "Authorization": f"Bearer {token}",
-    "Accept": "application/json"
-}
-
-url = f"https://graph.microsoft.com/v1.0/sites/{SITE_ID}/drives"
-response = requests.get(url, headers=headers)
-response.raise_for_status()
-
-drives = response.json()["value"]
-for drive in drives:
-    print(drive["name"], drive["id"])  # Busca "Documentos compartidos"

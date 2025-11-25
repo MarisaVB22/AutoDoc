@@ -65,19 +65,19 @@ def crear_proyecto_endpoint():
     if not nombre or not descripcion:
         return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
 
-    # PRUEBA: Crear carpeta en Sharepoint
+    # PRUEBA: Crear carpeta en Sharepoint y obtener URL + folder_id
     try:
-       # Crear carpeta en SharePoint y obtener su URL
-        proyecto_url = funcs.crear_carpeta_sharepoint(nombre)
+        proyecto_url, id_sharepoint = funcs.crear_carpeta_sharepoint(nombre)
     except Exception as e:
         return jsonify({"error": f"No se pudo crear la carpeta en SharePoint: {str(e)}"}), 500
 
     # Guardar el nuevo proyecto en la BBDD
-    proyecto_id = funcs.crear_proyecto(nombre, descripcion, proyecto_url)
+    proyecto_id = funcs.crear_proyecto(nombre, descripcion, proyecto_url, id_sharepoint)
 
     return jsonify({
         "mensaje": "Proyecto creado correctamente",
-        "proyecto_id": proyecto_id
+        "proyecto_id": proyecto_id,
+        "proyecto_url": proyecto_url
     }), 200
 
 # -------------------- MODIFICAR PROYECTO -------------------- #
@@ -130,6 +130,7 @@ def obtener_documentos_endpoint(idProyecto):
 
 
 # -------------------- SUBIR DOCUMENTO (REGISTRO EN BBDD) -------------------- #
+"""
 @app.route("/proyectos/<int:idProyecto>/documentos", methods=["POST"])
 def crear_documento_endpoint(idProyecto):
     data = request.get_json()
@@ -148,6 +149,40 @@ def crear_documento_endpoint(idProyecto):
         "mensaje": "Documento creado correctamente",
         "documento_id": documento_id
     }), 200
+"""
+
+# -------------------- SUBIR DOCUMENTO (ARHIVO) A SHAREPOINT Y REGISTRARLO EN LA BBDD -------------------- #
+@app.route("/proyectos/<int:idProyecto>/documentos", methods=["POST"])
+def crear_documento_endpoint(idProyecto):
+    if "file" not in request.files:
+        return jsonify({"mensaje": "No se recibió archivo"}), 400
+
+    archivo = request.files["file"]
+    nombre = request.form.get("nombre")
+    descripcion = request.form.get("descripcion")
+    
+    if not nombre or not descripcion:
+        return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
+
+    # Obtener URL pública y folder_id del proyecto
+    proyecto_url, folder_id = funcs.obtener_info_proyecto(idProyecto)
+
+    # Subir el archivo a SharePoint
+    try:
+        contenido_bytes = archivo.read()
+        archivo_url = funcs.subir_archivo_sharepoint(archivo.filename, contenido_bytes, folder_id)
+    except Exception as e:
+        return jsonify({"error": f"No se pudo subir el archivo a SharePoint: {str(e)}"}), 500
+
+    # Registrar documento en BBDD
+    documento_id = funcs.crear_documento(idProyecto, nombre, descripcion, archivo_url)
+
+    return jsonify({
+        "mensaje": "Documento creado correctamente",
+        "documento_id": documento_id,
+        "url": archivo_url
+    }), 200
+
 
 
 # -------------------- OBTENER DOCUMENTO POR ID -------------------- #

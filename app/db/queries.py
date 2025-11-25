@@ -8,10 +8,13 @@ GET_PROJECT_BY_NAME = "SELECT * FROM autodoc.proyectos WHERE nombre ILIKE %s;"
 # Obtener un proyecto por ID
 GET_PROJECT_BY_ID = "SELECT * FROM autodoc.proyectos WHERE proyecto_id = %s;"
 
+# Obtener url (id de sharepoint) de un proyecto por ID
+GET_PROJECT_URL_BY_ID = "SELECT proyecto_url, id_sharepoint FROM autodoc.proyectos WHERE proyecto_id = %s;"
+
 # Crear un nuevo proyecto
 CREATE_PROJECT = """
-    INSERT INTO autodoc.proyectos (nombre, descripcion, proyecto_url)
-    VALUES (%s, %s, %s) RETURNING proyecto_id;
+    INSERT INTO autodoc.proyectos (nombre, descripcion, proyecto_url, id_sharepoint)
+    VALUES (%s, %s, %s, %s) RETURNING proyecto_id;
 """
 # Actualizar un proyecto existente
 UPDATE_PROJECT = """

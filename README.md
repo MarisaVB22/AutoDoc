@@ -94,7 +94,7 @@ Para eliminar contenedores y redes pero mantener los volúmenes:
 ```powershell
 docker-compose down
 ```
-Para eliminar contenedores, redes y volúmenes (borrando también la base de datos):
+Para eliminar contenedores, redes y volúmenes (borra también la base de datos):
 ```powershell
 docker-compose down -v
 ```

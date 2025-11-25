@@ -37,7 +37,6 @@ main.py
 docker-compose.yml    # Contenedores para PostgreSQL
 requirements.txt      # Instalaciones necesarias
 ```
-```
 
 ---
 

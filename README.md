@@ -130,6 +130,7 @@ docker-compose down -v
 | nombre     | string  | Nombre del proyecto |
 | descripcion| string  | Descripción del proyecto |
 | proyecto_url | string | URL del proyecto |
+| id_sharepoint | string | ID de la carpeta del proyecto en SharePoint |
 
 ### Documento
 | Campo       | Tipo    | Descripción |

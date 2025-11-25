@@ -4,11 +4,11 @@ CORS_ORIGINS = ["http://localhost:5173"]  # frontend en desarrollo
 # Configuración de la base de datos
 # Configuración de la base de datos
 DB_CONFIG = {
-    "host": "127.0.0.1",
-    "database": "autodoc_db",
-    "user": "autodoc_user",
-    "password": "autodoc",   # ← sin caracteres especiales 👍
-    "port": 5432,
-    "minconn": 1,
-    "maxconn": 5,
+    "DB_HOST": "127.0.0.1",
+    "DB_NAME": "autodoc_db",
+    "DB_USER": "autodoc_user",
+    "DB_PASS": "autodoc",
+    "DB_PORT": 5432,
+    "MINCONN": 1,
+    "MAXCONN": 5,
 }

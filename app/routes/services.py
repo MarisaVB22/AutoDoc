@@ -157,7 +157,7 @@ def obtener_documento_por_id_endpoint(idProyecto, idDocumento):
         "nombre": documento_raw["nombre"],
         "descripcion": documento_raw["descripcion"],
         "url": documento_raw["url"],
-        "fecha": documento_raw["fecha"]
+        "fecha": documento_raw["fecha_creacion"]
     }
 
     return jsonify(documento)
@@ -195,3 +195,5 @@ def eliminar_documento_endpoint(idProyecto, idDocumento):
         return jsonify({"mensaje": "No se encontró el documento con ese ID"}), 404
 
     return jsonify({"mensaje": "Documento eliminado correctamente"})
+
+# Todo: Actualizar los servicios para crear carpetas y subir archivos a Sharepoint

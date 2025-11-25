@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from app import app
-from app.utils import funciones as funcs  # Importa todo el módulo con un alias
+from app.utils import funciones as funcs
 
 # -------------------- RUTA DE PRUEBA -------------------- #
 # PRUEBA - Llamada a la función saludo desde funciones.py
@@ -10,6 +10,7 @@ def saludo_route():
     return jsonify({"saludo": data})
 
 # -------------------- ACCESS TOKEN MICROSOFT GRAPH -------------------- #
+# Devuelve un token de acceso para Microsoft Graph
 @app.route("/test-token", methods=["GET"])
 def test_token():
     try:
@@ -59,12 +60,19 @@ def crear_proyecto_endpoint():
     # Validar que vengan todos los campos requeridos
     nombre = data.get("nombre")
     descripcion = data.get("descripcion")
-    proyecto_url = data.get("proyecto_url")
+    # proyecto_url = data.get("proyecto_url") -> Ya no pasamos la url, se crea la carpeta en Sharepoint
 
-    if not nombre or not descripcion or not proyecto_url:
+    if not nombre or not descripcion:
         return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
 
-    # Llamar a la función auxiliar que inserta el proyecto
+    # PRUEBA: Crear carpeta en Sharepoint
+    try:
+       # Crear carpeta en SharePoint y obtener su URL
+        proyecto_url = funcs.crear_carpeta_sharepoint(nombre)
+    except Exception as e:
+        return jsonify({"error": f"No se pudo crear la carpeta en SharePoint: {str(e)}"}), 500
+
+    # Guardar el nuevo proyecto en la BBDD
     proyecto_id = funcs.crear_proyecto(nombre, descripcion, proyecto_url)
 
     return jsonify({

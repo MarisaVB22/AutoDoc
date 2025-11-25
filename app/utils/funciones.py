@@ -5,6 +5,10 @@ from app.config.config import DB_CONFIG # Configuración de la BBDD
 from app.db import queries as db # Consultas a la BBDD
 import requests
 
+# Importar variables de entorno para Sharepoint
+SITE_ID = os.getenv("SITE_ID")
+DRIVE_ID = os.getenv("DRIVE_ID")
+
 
 # ------------------ Pool por request ------------------ #
 def get_db_pool():
@@ -91,6 +95,29 @@ def crear_proyecto(nombre, descripcion, proyecto_url):
         pool.release_connection(conn)
 
     return proyecto_id
+
+# Crea una carpeta en Sharepoint para el proyecto
+def crear_carpeta_sharepoint(nombre_carpeta):
+    token = get_access_token()
+    url = f"https://graph.microsoft.com/v1.0/sites/{SITE_ID}/drives/{DRIVE_ID}/root/children"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    body = {
+        "name": nombre_carpeta,
+        "folder": {},
+        "@microsoft.graph.conflictBehavior": "rename"
+    }
+
+    response = requests.post(url, headers=headers, json=body)
+    response.raise_for_status() # Lanza error si falla
+    folder_info = response.json() # JSON de Microsoft Graph
+
+    # Devuelve la URL de la carpeta creada
+    return folder_info.get("webUrl")
+
+
 
 def modificar_proyecto(proyecto_id, nombre, descripcion, proyecto_url):
     pool = get_db_pool()
@@ -223,3 +250,23 @@ def eliminar_documento(documento_id):
     finally:
         cursor.close()
         pool.release_connection(conn)
+
+
+
+
+# PRUEBA
+
+SITE_ID = "autodocapp.sharepoint.com,0f312f13-1068-456c-9698-1e51cc3b7ab6,1a49da2b-2feb-46a1-b6b6-8fef07fe3178"
+token = get_access_token()
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Accept": "application/json"
+}
+
+url = f"https://graph.microsoft.com/v1.0/sites/{SITE_ID}/drives"
+response = requests.get(url, headers=headers)
+response.raise_for_status()
+
+drives = response.json()["value"]
+for drive in drives:
+    print(drive["name"], drive["id"])  # Busca "Documentos compartidos"

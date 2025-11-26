@@ -42,6 +42,23 @@ requirements.txt      # Instalaciones necesarias
 
 ## Instrucciones rápidas (Windows PowerShell):
 
+### 0. Verificar versión de Python
+
+Este proyecto utiliza Python 3.11.9.
+Comprueba tu versión con:
+
+```powershell
+python --version
+```
+
+Si no coincide, instala la versión correcta o crea un entorno virtual con la versión adecuada.
+Para crear y activar entorno virtual:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+```
+
 ### 1. Instalar dependencias:
 
 ```powershell

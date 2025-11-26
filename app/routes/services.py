@@ -239,4 +239,4 @@ def eliminar_documento_endpoint(idProyecto, idDocumento):
 
     return jsonify({"mensaje": "Documento eliminado correctamente"})
 
-# Todo: Actualizar los servicios para crear carpetas y subir archivos a Sharepoint
+# TODO: Actualizar los servicios para crear carpetas y subir archivos a Sharepoint

@@ -1,4 +1,6 @@
 services:
+
+  # Base de datos principal
   postgres:
     image: postgres:15
     container_name: postgres_db
@@ -13,7 +15,40 @@ services:
       - ./app/db/postgres:/docker-entrypoint-initdb.d
       - pgdata:/var/lib/postgresql/data
 
-# Opcional: pgAdmin service para administrar la base de datos PostgreSQL
+  # Base de datos para Keycloak
+  keycloak_db:
+    image: postgres:15
+    container_name: keycloak_db
+    restart: always
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./app/db/keycloak:/docker-entrypoint-initdb.d
+      - keycloakpgdata:/var/lib/postgresql/data
+
+  # Keycloak para autenticación
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    command: ["start-dev"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak_db
+      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    depends_on:
+      - keycloak_db
+
+  # Opcional: PgAdmin para administrar las bases de datos PostgreSQL
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -29,3 +64,4 @@ services:
 volumes:
   pgdata:
   pgadmindata:
+  keycloakpgdata:

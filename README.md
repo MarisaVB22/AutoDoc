@@ -55,8 +55,8 @@ Si no coincide, instala la versión correcta o crea un entorno virtual con la ve
 Para crear y activar entorno virtual:
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\activate
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
 
 ### 1. Instalar dependencias:
@@ -115,6 +115,19 @@ Para eliminar contenedores, redes y volúmenes (borra también la base de datos)
 ```powershell
 docker-compose down -v
 ```
+
+### Posible error: psycopg2.OperationalError
+Si aparece este error al iniciar la aplicación, puede significar que el puerto de PostgreSQL que quieres usar ya está ocupado.
+
+Para comprobarlo:
+```powershell
+netstat -ano | findstr 5432
+```
+
+- En lugar de 5432 ponemos el puerto que queremos comprobar. 
+- Si estuviera ocupado, tenemos que elegir otro en docker-compose.yml y actualizarlo en config.py (DB_PORT)
+- Recuerda reiniciar los contenedores.
+
 ---
 
 # SHAREPOINT DE PRUEBA

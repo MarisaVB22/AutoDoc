@@ -1,17 +1,30 @@
-from flask import jsonify, request
+from flask import jsonify, request, g
 from app import app
 from app.utils import funciones as funcs
+from app.auth.auth import requires_auth # Importar el decorador de autenticación
 
 # -------------------- RUTA DE PRUEBA -------------------- #
 # PRUEBA - Llamada a la función saludo desde funciones.py
 @app.route("/saludo", methods=["GET"])
+@requires_auth
 def saludo_route():
     data = funcs.saludo()
     return jsonify({"saludo": data})
 
+# --------------------  Obtener info del usuario autenticado -------------------- #
+@app.route("/me", methods=["GET"])
+@requires_auth
+def get_my_info():
+    user = g.user
+    return jsonify({
+        "id": user["id"],
+        "email": user["email"]
+    })
+
 # -------------------- ACCESS TOKEN MICROSOFT GRAPH -------------------- #
 # Devuelve un token de acceso para Microsoft Graph
 @app.route("/test-token", methods=["GET"])
+@requires_auth
 def test_token():
     try:
         token = funcs.get_access_token()
@@ -25,6 +38,7 @@ def test_token():
 # -------------------- OBTENER PROYECTOS -------------------- #
 # Devuelve todos los proyectos o filtra por nombre si se proporciona el parámetro
 @app.route("/proyectos", methods=["GET"])
+@requires_auth
 def obtener_proyectos_endpoint():
     nombre = request.args.get("nombre")
     proyectos_raw = funcs.obtener_proyectos(nombre)
@@ -45,6 +59,7 @@ def obtener_proyectos_endpoint():
 # -------------------- OBTENER UN PROYECTO POR ID -------------------- #
 # Devuelve un proyecto específico por su ID
 @app.route("/proyectos/<int:id>", methods=["GET"])
+@requires_auth
 def obtener_proyecto_por_id_endpoint(id):
     proyecto_raw = funcs.obtener_proyecto_por_id(id)
 
@@ -64,6 +79,7 @@ def obtener_proyecto_por_id_endpoint(id):
 
 # -------------------- CREAR UN NUEVO PROYECTO -------------------- #
 @app.route("/proyectos", methods=["POST"])
+@requires_auth
 def crear_proyecto_endpoint():
     # Obtener los datos del request body
     data = request.get_json()
@@ -92,6 +108,7 @@ def crear_proyecto_endpoint():
 
 # -------------------- MODIFICAR PROYECTO -------------------- #
 @app.route("/proyectos/<int:id>", methods=["PUT"])
+@requires_auth
 def modificar_proyecto_endpoint(id):
     # Obtener datos del request
     data = request.get_json()
@@ -123,6 +140,7 @@ def modificar_proyecto_endpoint(id):
 
 # -------------------- ELIMINAR PROYECTO -------------------- #
 @app.route("/proyectos/<int:id>", methods=["DELETE"])
+@requires_auth
 def eliminar_proyecto_endpoint(id):
     # Llamamos a la función auxiliar que elimina el proyecto
     try: 
@@ -142,6 +160,7 @@ def eliminar_proyecto_endpoint(id):
 
 # -------------------- LISTAR DOCUMENTOS DE UN PROYECTO -------------------- #
 @app.route("/proyectos/<int:idProyecto>/documentos", methods=["GET"])
+@requires_auth
 def obtener_documentos_endpoint(idProyecto):
     documentos_raw = funcs.obtener_documentos(idProyecto)
 
@@ -163,6 +182,7 @@ def obtener_documentos_endpoint(idProyecto):
 
 # -------------------- SUBIR DOCUMENTO (ARCHIVO) A SHAREPOINT Y REGISTRARLO EN LA BBDD -------------------- #
 @app.route("/proyectos/<int:idProyecto>/documentos", methods=["POST"])
+@requires_auth
 def crear_documento_endpoint(idProyecto):
     if "file" not in request.files:
         return jsonify({"mensaje": "No se recibió archivo"}), 400
@@ -197,6 +217,7 @@ def crear_documento_endpoint(idProyecto):
 
 # -------------------- OBTENER DOCUMENTO POR ID -------------------- #
 @app.route("/proyectos/<int:idProyecto>/documentos/<int:idDocumento>", methods=["GET"])
+@requires_auth
 def obtener_documento_por_id_endpoint(idProyecto, idDocumento):
     documento_raw = funcs.obtener_documento_por_id(idDocumento)
 
@@ -218,6 +239,7 @@ def obtener_documento_por_id_endpoint(idProyecto, idDocumento):
 
 # -------------------- MODIFICAR DOCUMENTO -------------------- #
 @app.route("/proyectos/<int:idProyecto>/documentos/<int:idDocumento>", methods=["PUT"])
+@requires_auth
 def modificar_documento_endpoint(idProyecto, idDocumento):
     """
     Endpoint para modificar un documento existente.
@@ -264,6 +286,7 @@ def modificar_documento_endpoint(idProyecto, idDocumento):
 
 # -------------------- ELIMINAR DOCUMENTO -------------------- #
 @app.route("/proyectos/<int:idProyecto>/documentos/<int:idDocumento>", methods=["DELETE"])
+@requires_auth
 def eliminar_documento_endpoint(idProyecto, idDocumento):
     try:
         eliminado = funcs.eliminar_documento(idDocumento)
